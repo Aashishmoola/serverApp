@@ -1,0 +1,30 @@
+Middleware
+A function with signature func(req, res, next) . 
+A Middleware usually runs some piece of code, optionally modifies the request or response and at the end,
+ either sends the response or calls the next Layer.
+
+Route
+They consist of the actual Request handlers for processing one or more HTTP method Types (GET, PUT, POST…).
+A Route method’s handler also has the same signature as middleware, func(req, res, next) .
+Typically, it will contain the business logic to process the request and send a response.
+In case of an unexpected error, it can throw the error or call the next() function by passing the error as its first param.
+
+Error handler
+They are the functions responsible for handling the errors thrown by any previous Layer or sent by previous Layer using next() method.
+They have a signature of func(error, req, res, next) .
+While defining them, it is absolutely necessary to have all four params in the signature.
+This is the only way, app can differentiate between errorHandlers and other middlewares
+
+Another Router
+As I mentioned before, a Router is like a mini-app. 
+Only difference is that a Router will usually be registered on the main Express app using a path. 
+It is both contained in a Layer and has its own stack of Layers. 
+This kind of nested structure of Routers allows us to create modular mini apps within an Express app.
+They are created by invoking Router() method on express object.
+
+Router --> Layer stack  --> Layer (Can be any on those mentioned above)
+
+- Router can be nested within other routers (Subst layer for another router)
+- In any req-res cycle, the req will pass through each layer with layerError internal prop set to null
+- If no error ( layerError === null), will process the layer (send res to next middleware using next(), end response etc.)
+- If error, layerError = error, and res will be directed to next error handler function in layer stack (ans subsequent error handler functions if they exist)
