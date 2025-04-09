@@ -1,38 +1,40 @@
 {
-  "name": "main",
-  "version": "1.0.0",
-  "description": "",
-  "main": "appServer.ts",
-  "scripts": {
-    "build": "npx tsc",
-    "start": "node dist/appServer.js",
-    "dev": "nodemon src/appServer.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "removeAllFiles": "powershell -Command \"Get-ChildItem .\\src -Include *.ts,*.ejs -Recurse | Remove-Item\""
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "devDependencies": {
-    "@eslint/js": "^9.23.0",
-    "@types/express": "^5.0.1",
-    "@types/node": "^22.13.14",
-    "@typescript-eslint/eslint-plugin": "^8.28.0",
-    "@typescript-eslint/parser": "^8.28.0",
-    "concurrently": "^9.1.2",
-    "ejs": "^3.1.10",
-    "eslint": "^9.23.0",
-    "express-async-handler": "^1.2.0",
-    "globals": "^16.0.0",
-    "nodemon": "^3.1.9",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.2",
-    "typescript-eslint": "^8.28.0"
-  },
-  "dependencies": {
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "express-validator": "^7.2.1"
-  }
+    "name": "main",
+    "version": "1.0.0",
+    "description": "",
+    "main": "appServer.ts",
+    "scripts": {
+        "build": "npx tsc",
+        "start": "node dist/appServer.js",
+        "dev_compile": "npx tsc && node dist/appServer.js",
+        "dev": "nodemon src/appServer.ts",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "lint": "npx eslint src/*",
+        "remove_all_files": "powershell -Command \"Get-ChildItem .\\src -Include *.ts,*.ejs -Recurse | Remove-Item\""
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "devDependencies": {
+        "@eslint/js": "^9.23.0",
+        "@types/express": "^5.0.1",
+        "@types/node": "^22.13.14",
+        "@typescript-eslint/eslint-plugin": "^8.28.0",
+        "@typescript-eslint/parser": "^8.28.0",
+        "concurrently": "^9.1.2",
+        "ejs": "^3.1.10",
+        "eslint": "^9.23.0",
+        "express-async-handler": "^1.2.0",
+        "globals": "^16.0.0",
+        "nodemon": "^3.1.9",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.2",
+        "typescript-eslint": "^8.28.0"
+    },
+    "dependencies": {
+        "dotenv": "^16.4.7",
+        "express": "^4.21.2",
+        "express-validator": "^7.2.1"
+    }
 }
