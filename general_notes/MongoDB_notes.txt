@@ -1,0 +1,6 @@
+1.  mongoose.schema seems to coerce types into correct format such as Number to String.
+2.  mongoose.schema , by default, sets field of type [elementaryType] (Array) to empty arr instead of undefined.
+    To override this, set default value to undefined
+3.  Ensure that you cast documents using correct TS interface using "as" when necessary
+    Also, type cast id's of doc as mongoose.Types.ObjectId
+

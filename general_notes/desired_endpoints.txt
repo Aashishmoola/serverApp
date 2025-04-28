@@ -1,0 +1,11 @@
+products can be substituted with other collections (users, orders (nested: orderItems), category)
+
+GET req:
+api/v1/products/all => Returns list of all products
+api/v1/products/:id => Returns product with matching is in params
+
+POST req: 
+api/v1/products/create => Adds product to DB with new id
+api/v1/products/createAll => Adds a list of products to DB with new ids
+api/v1/products/update/:id => Updates a product in DB with matching id
+api/v1/delete/:id => Deletes a product in DB with matching id

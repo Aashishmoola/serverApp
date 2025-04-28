@@ -27,4 +27,6 @@ Router --> Layer stack  --> Layer (Can be any on those mentioned above)
 - Router can be nested within other routers (Subst layer for another router)
 - In any req-res cycle, the req will pass through each layer with layerError internal prop set to null
 - If no error ( layerError === null), will process the layer (send res to next middleware using next(), end response etc.)
-- If error, layerError = error, and res will be directed to next error handler function in layer stack (ans subsequent error handler functions if they exist)
+- If error, layerError = error, and res will be directed to next error handler function in layer stack (and subsequent error handler functions if they exist)
+
+
