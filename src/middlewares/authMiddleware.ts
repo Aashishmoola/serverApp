@@ -2,8 +2,11 @@ import jwt from "jsonwebtoken"
 import { RequestHandler } from "express"
 import { getDotenVar } from "../helpers/dotenv"
 import { CustomError } from "../errors/customError"
+import { IJWTPayload } from "../types/globalTypes"
 
 const JWT_SECRET_KEY = getDotenVar("JWT_SECRET_KEY")
+
+
 
 const verifyJWToken: RequestHandler = (req, res, next) => {
     const authHeader = req.header("Authorization")
@@ -15,7 +18,12 @@ const verifyJWToken: RequestHandler = (req, res, next) => {
     if(!token) throw new CustomError({message: "Format of authHeader is not of type: ['Bearer': token]", statusCode: 400} )
 
     // Will throw error caught by error handling layer
-    const decodedTokenPayload = jwt.verify(token, JWT_SECRET_KEY)
- 
+    const decodedJWTPayload = jwt.verify(token, JWT_SECRET_KEY) as IJWTPayload
+    
+    
+    // Attach userId and isAdmin to req object
+    req.userId = decodedJWTPayload.userId
+    req.isAdmin = decodedJWTPayload.isAdmin
+
 }
 

@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 import asyncHandler from "express-async-handler"
 import { CustomError } from "../errors/customError"
+import { IJWTPayload } from "../types/globalTypes"
 
 export {registerUser, loginUser}
 
@@ -42,12 +43,15 @@ const loginUser: RequestHandler = asyncHandler(async (req, res) => {
     res.status(201).json({ success: "Authenticated", token})
 })
 
+
+
 async function hashPassword(password: string) {
     const salt = await bcrypt.genSalt(10)
     const passwordHash = await bcrypt.hash(password, salt)
     return passwordHash
 }
 
-function createJWToken(user_id: string, isAdmin: boolean){
-    return jwt.sign({user_id, isAdmin}, JWT_SECRET_KEY, {expiresIn: "1h"})
+function createJWToken(userId: string, isAdmin: boolean){
+    const JWTPayload: Omit<IJWTPayload, 'iat' | 'exp'> = {userId, isAdmin}
+    return jwt.sign(JWTPayload, JWT_SECRET_KEY, {expiresIn: "1h"})
 }
