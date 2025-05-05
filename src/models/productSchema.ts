@@ -1,7 +1,7 @@
 import mongoose, {Schema, Document} from "mongoose"
-import { getCategoryMiddleWare } from "../controllers/categoryController";
+import { getCategoryInDB } from "../controllers/categoryController";
 
-export {Product}
+export {Product, IProduct}
 
 // Must extend Document for TS to validate the methods of compiled model
 interface IProduct extends Document {
@@ -59,7 +59,7 @@ const productSchema = new Schema<IProduct>({
 productSchema.pre("save", async function(this: IProduct) {
     // check if categoryName exists & !== undefined but categoryId does not exist| === undefined as it is not a required field
     if (!this.categoryId && this.categoryName) {
-        const category= await getCategoryMiddleWare(this.categoryName)
+        const category= await getCategoryInDB(this.categoryName)
         this.categoryId = category._id as mongoose.Types.ObjectId
     } 
 })

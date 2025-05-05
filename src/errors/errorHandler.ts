@@ -4,11 +4,13 @@ import { CustomError } from "./customError"
 export {errorHandler}
 
 const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
-    // to check if a res was already sent, in which case call next(error) that will match
-    // default errorHandler layer in expressJS
+    console.log("Custom Error handler layer is called ...")
+    
     if (res.headersSent) {
+        // to check if a res was already sent, in which case call next(error) that will match
+        // default errorHandler layer in expressJS
+        console.warn("Headers already sent, passing to default error handler")
         next(error)
-        return
     }
 
     if (error instanceof CustomError) {
@@ -17,14 +19,14 @@ const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
                 message: error.message
             }
         }))
-        return
     }
-
-    res.status(500).json({
-        error: {
-            message: getErrorMessage(error)
-        }
-    })
+    else {
+        res.status(500).json({
+            error: {
+                message: getErrorMessage(error)
+            }
+        })
+    }
 }
 
 function getErrorMessage(error: unknown): string {

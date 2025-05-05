@@ -18,7 +18,7 @@ interface IUser extends Document {
     passwordHash: string,
     shippingAddress: IShippingAddress,
     phoneNum: number,
-    isAdmin: boolean,
+    _isAdmin: boolean,
 }
 
 const shippingAddressSchema = new Schema <IShippingAddress> ({
@@ -51,6 +51,7 @@ const userSchema = new Schema<IUser>({
     email: {
         type: String,
         required: true,
+        unique: true,
     },
     passwordHash: {
         type: String,
@@ -58,7 +59,7 @@ const userSchema = new Schema<IUser>({
     },
     shippingAddress: shippingAddressSchema,
     phoneNum: Number,
-    isAdmin: {
+    _isAdmin: {
         type: Boolean,
         required: true,
     }

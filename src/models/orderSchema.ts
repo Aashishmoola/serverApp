@@ -1,7 +1,9 @@
 import mongoose, {Schema, Document} from "mongoose"
 import { shippingAddressSchema, IShippingAddress } from "./userSchema"
+import { orderStatus } from "../types/globalTypes"
+import { getProductInDB } from "../dBHandlers/productDBHandler"
 
-export {Order}
+export {Order, IOrder, IOrderItems}
 
 interface IOrderItems extends Document {
     productName: string,
@@ -10,12 +12,11 @@ interface IOrderItems extends Document {
 }
 
 interface IOrder extends Document {
-    orderItems: IOrderItems[],
+    orderItems: IOrderItems,
     shippingAddress: IShippingAddress,
     phoneNumber: number,
-    status: "Processing" | "In Transit" | "Delivered",
+    status: orderStatus,
     totalPrice: number,
-    userName: string,
     user: mongoose.Types.ObjectId,
     dateOrdered: Date
 
@@ -30,6 +31,7 @@ const orderItemsSchema = new Schema<IOrderItems>({
     productId: {
         type: Schema.Types.ObjectId,
         ref: "Product",
+        required: true
     },
     quantity: {
         type: Number,
@@ -39,7 +41,7 @@ const orderItemsSchema = new Schema<IOrderItems>({
 
 const orderSchema = new Schema<IOrder> ({
     orderItems: {
-        type: [orderItemsSchema],
+        type: orderItemsSchema,
         required: true,
     },
     shippingAddress: {
@@ -49,15 +51,11 @@ const orderSchema = new Schema<IOrder> ({
     phoneNumber: Number,
     status: {
         type: String, 
-        required: true
+        default: "Processing"
     },
     totalPrice: {
         type: Number,
         required: true
-    },
-    userName: {
-        type: String,
-        required: true,
     },
     user: {
         type: Schema.Types.ObjectId,
@@ -65,6 +63,15 @@ const orderSchema = new Schema<IOrder> ({
     },
     dateOrdered: Date
 
+})
+
+// populate the productName if not set 
+
+orderSchema.pre("save", async function(this: IOrder){
+    if (!this.orderItems.productName) {
+        const product = await getProductInDB(null, this.orderItems.productId)
+        this.orderItems.productName = product.name
+    }
 })
 
 const Order = mongoose.model("Orders", orderSchema)

@@ -1,57 +1,91 @@
 import { RequestHandler } from "express"
-import { getDotenVar } from "../helpers/dotenv"
 import { User, IUser } from "../models/userSchema"
-import jwt from "jsonwebtoken"
-import bcrypt from "bcrypt"
 import asyncHandler from "express-async-handler"
 import { CustomError } from "../errors/customError"
-import { IJWTPayload } from "../types/globalTypes"
+import {getUserInDB, verifyIfEmailIsAdmin, verifyPhoneNum, verifyPassword, hashPassword, createJWToken} from "../dBHandlers/userDBhandler"
 
-export {registerUser, loginUser}
+export {registerUser, loginUser, updateUser, updateUserPassword, deleteUser}
 
-const JWT_SECRET_KEY = getDotenVar("JWT_SECRET_KEY")
 
-// Register User
+
 
 const registerUser: RequestHandler = asyncHandler( async (req, res) => {
-    const {userName, password, email, shippingAddress, phoneNum, isAdmin} = req.body
+    const {userName, password, email, shippingAddress, phoneNum} = req.body
     // If incorrect or missing field types are provided, 
     // model will throw error that is caught by asyncHandler 
     const passwordHash = await hashPassword(password)
 
-    const user = new User({userName, passwordHash, email, shippingAddress, phoneNum, isAdmin})
+    const isAdmin = verifyIfEmailIsAdmin(email)
+
+    const user = new User({userName, passwordHash, email, shippingAddress, phoneNum, _isAdmin: isAdmin})
+
     user.save()
+
     res.status(201).json(user)
 })
 
 const loginUser: RequestHandler = asyncHandler(async (req, res) => {
     const {userName, email, password} = req.body
 
-    let user: IUser | null
-    if (userName) user = await User.findOne().where("userName").equals(userName)
-    else if (email) user = await User.findOne().where("email").equals(email)
-    else throw new CustomError({message: "Neither UserName nor email is provided in req body", statusCode: 400 })
-
-    if (!user) throw new CustomError({message: `User with ${userName || email} is not found`, statusCode: 404 })
+    const user = await getUserInDB(userName, email)
+    await verifyPassword(password, user)
     
-    const isPasswordCorrect = await bcrypt.compare(password, user.passwordHash)
-    if (!isPasswordCorrect) throw new CustomError({message: "Password is incorrect. Please try again with correct password", statusCode: 400})
-
     // doc.id is doc._id casted as a string (mongoose provides a virtual id getter)
-    const token = createJWToken(user.id, user.isAdmin)
-
+    const token = createJWToken(user.email, user._isAdmin)     
+    
     res.status(201).json({ success: "Authenticated", token})
 })
 
+const updateUser: RequestHandler = asyncHandler(async (req, res) => {
+    const updatedUserProps: Omit<IUser, "email" | "passwordHash" | "_isAdmin"> = req.body.updatedUserProps
+    const password = req.body.password
 
+    const email = req.userEmail
+    if (!email) throw new CustomError({message: " UserEmail from JWT payload has unsuccessfully been attatched to req obj", statusCode: 500})
 
-async function hashPassword(password: string) {
-    const salt = await bcrypt.genSalt(10)
-    const passwordHash = await bcrypt.hash(password, salt)
-    return passwordHash
-}
+    const {userName, shippingAddress, phoneNum} = updatedUserProps
 
-function createJWToken(userId: string, isAdmin: boolean){
-    const JWTPayload: Omit<IJWTPayload, 'iat' | 'exp'> = {userId, isAdmin}
-    return jwt.sign(JWTPayload, JWT_SECRET_KEY, {expiresIn: "1h"})
-}
+    const user = await getUserInDB("", email)
+    await verifyPassword(password, user)
+
+    if (userName) user.userName = userName
+    if (shippingAddress) user.shippingAddress = shippingAddress
+    if (phoneNum) user.phoneNum = phoneNum
+
+    user.save()
+    res.status(201).json(user)
+})
+
+const updateUserPassword: RequestHandler = asyncHandler(async (req, res) => {
+    const {phoneNum, currentPassword, updatedPassword} = req.body
+    
+    const email = req.userEmail
+    if (!email) throw new CustomError({message: " UserEmail from JWT payload has unsuccessfully been attatched to req obj", statusCode: 500})
+
+    const user = await getUserInDB("", email)
+    await verifyPassword(currentPassword, user)
+    verifyPhoneNum(user, phoneNum)
+
+    const passwordHash = await hashPassword(updatedPassword)
+
+    if (passwordHash) user.passwordHash = passwordHash
+
+    user.save()
+    res.status(201).json(user)
+})
+
+const deleteUser: RequestHandler = asyncHandler(async (req, res) => {
+    const {phoneNum, password} = req.body   
+    
+    const email = req.userEmail
+    if (!email) throw new CustomError({message: " UserEmail from JWT payload has unsuccessfully been attatched to req obj", statusCode: 500})
+
+    const user = await getUserInDB("", email)
+    await verifyPassword(password, user)
+    verifyPhoneNum(user, phoneNum)
+
+    const deletedUser = await User.findOneAndDelete().where("email").equals(email)
+    if (!deletedUser) throw new CustomError({message: "There was an error when deleting user" , statusCode: 500})
+    res.status(201).json(deletedUser)
+})
+

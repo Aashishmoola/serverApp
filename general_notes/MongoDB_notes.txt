@@ -1,6 +1,39 @@
 1.  mongoose.schema seems to coerce types into correct format such as Number to String.
+
 2.  mongoose.schema , by default, sets field of type [elementaryType] (Array) to empty arr instead of undefined.
     To override this, set default value to undefined
+
 3.  Ensure that you cast documents using correct TS interface using "as" when necessary
     Also, type cast id's of doc as mongoose.Types.ObjectId
+
+4.  _id/_isAdmin are internal properties and should not be altered unless in specific circumstances,
+    prepend "_" to differentiate such properties 
+
+5. next() must be called in top scope to
+
+    1. Ensure it is not called conditionally that could lead to hanging requests, 
+    2. To not lead to race conditions when multiple promises are call next
+    3. To not be called only when promise resolves
+    4. To have clear error handling cases "next(error)"
+    5. Prevent using "return next()"
+
+6. Sync functions that throw error or errors that are thrown manually will be caight be express error
+    handling mechanism and do not have to be wrapped in a try-catch block with the error passed on through next
+
+    However this mechanism does not work for async functions and thus have to 
+    be wrapped in try-catch block with "next(error)"
+
+7. The structure of aysnc-await is different than promises and method chaining
+    Async-await: The async function will pause on await before continuing
+
+    Promises: The promises will wait to be resolved or rejected before ".then" or ".catch"
+    can be used
+
+    The main benefit of async-await is handling many nested promises easily
+
+8. The intent of JWT is to handle authentication(whether user has a registered account) and Authorization (whether user should have access to the backend resources).
+   Main benefits:
+    -User does not need provide login credentials every time rest API call needs to be made 
+    -Token can expire so that leaked token cannot be taken advantage of for a long period of time
+    -Able to track whether there seems to be some suspicious API calls, as valid token needs to be attatched
 

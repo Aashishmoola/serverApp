@@ -1,15 +1,14 @@
-export {IJWTPayload}
+
+export { IJWTPayload, orderStatus }
 
 interface IJWTPayload {
-    userId: string,
-    isAdmin: boolean,
+    userEmail: string,
+    isAdmin:boolean,
     iat: number,
     exp: number,
 }
 
-declare namespace Express {
-    export interface Request {
-        userId: string,
-        isAdmin: boolean,
-    }
-}
+type orderStatus = "Processing" | "In Transit" | "Delivered"
+
+
+

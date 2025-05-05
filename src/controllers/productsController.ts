@@ -40,3 +40,4 @@ const getAllProducts: RequestHandler = async (req, res) => {
 
 
 
+

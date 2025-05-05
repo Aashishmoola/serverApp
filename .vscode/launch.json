@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug TypeScript Server App",
+            "program": "${workspaceFolder}/src/appServer.ts",
+            "runtimeArgs": ["-r", "ts-node/register", "-r", "tsconfig-paths/register"],
+            "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+            "envFile": "${workspaceFolder}/.env",
+            "console": "integratedTerminal",
+            "skipFiles": ["<node_internals>/**"]
+        }
+    ],
+}

@@ -1,13 +1,17 @@
 import express from "express";
 import dotenv from "dotenv"
+
+dotenv.config({path: ".env"})
+
 import bodyParser from "body-parser";
 import mongoose from "mongoose"
 import { getDotenVar } from "./helpers/dotenv";
 import { productsRouter } from "./routes/productsRouter";
 import { categoryRouter } from "./routes/categoryRouter";
 import { errorHandler } from "./errors/errorHandler";
+import { usersRouter } from "./routes/usersRouter";
+import { globalVerifyJWToken } from "./middlewares/authMiddleware";
 
-dotenv.config({path: ".env"})
 
 const app = express()
 
@@ -26,8 +30,6 @@ async function connectToServer(){
     }
 }
 
-
-
 // Paths must start with a "/" to be considered valid
 
 function main() {
@@ -35,10 +37,13 @@ function main() {
 
     app.use(bodyParser.json())  // Parsing the body in req as a JSON
 
+    app.use(globalVerifyJWToken)
+
     app.use(`${API_URL}/products`, productsRouter)
     app.use(`${API_URL}/category`, categoryRouter)
+    app.use(`${API_URL}/users`, usersRouter)
 
-    app.get(API_URL, (req, res) => {
+    app.get(`${API_URL}/test`, (req, res) => {
         res.json("Server test successful")
     })
 
